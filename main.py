@@ -2,16 +2,14 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QListWidget, QLabel, QPushButton, QLineEdit, QTextEdit, QHBoxLayout, \
     QVBoxLayout, QInputDialog
 import json
-
-
 notes = {
-    "Гарного дня!":{
-        "текст" : "",
-        "теги" : ["Тег1","Тег2"]
+    "Гарного дня!": {
+        "текст": "Доброго дня, бажаю успіху",
+        "теги": ["Тег1", "Тег2"]
     },
-    "Домашка" : {
-        "текст" : "Доробити домашку на понеділок",
-        "теги" : ["Фізіка","Хімія","Математика"]
+    "Домашка": {
+        "текст": "Доробити домашку на понеділок",
+        "теги": ["Математика", "Фізика", "Хімія"]
 
     }
 }
@@ -60,7 +58,7 @@ row3 = QHBoxLayout()
 row3.addWidget(button_tag_add)
 row3.addWidget(button_tag_del)
 row4 = QHBoxLayout()
-row4.addWidget(button_note_save)
+row4.addWidget(button_tag_search)
 
 col2.addLayout(row3)
 col2.addLayout(row4)
@@ -76,7 +74,7 @@ def show_notes():
     list_tags.addItems(notes[key]["теги"])
 
 def create_note():
-    note_name, ok = QInputDialog.getText(window, "Додати замітку", "Нава замітки")
+    note_name, ok = QInputDialog.getText(window, "Додати замітку", "Назва замітки")
     if ok and note_name != "":
         notes[note_name] = {"текст": "", "теги": []}
         list_notes.addItem(note_name)
@@ -84,8 +82,8 @@ def create_note():
 def save_note():
     if list_notes.selectedItems():
         key = list_notes.selectedItems()[0].text()
-        notes[key][key]["текст"] = field_text.toPlainText()
-        with open("note_data.json","w") as file:
+        notes[key]["текст"] = field_text.toPlainText()
+        with open("note_data.json", "w") as file:
             json.dump(notes, file, sort_keys=True)
     else:
         print("Замітка для додавання не обрана")
@@ -95,14 +93,14 @@ def del_note():
         key = list_notes.selectedItems()[0].text()
         del notes[key]
         list_notes.clear()
-        list_tags()
-        field_text()
+        list_tags.clear()
+        field_text.clear()
         list_notes.addItems(notes)
         with open("note_data.json", "w") as file:
             json.dump(notes, file, sort_keys=True)
     else:
-        print("Замітка для додавання не обрана")
-        
+        print("Замітка для видалення не обрана")
+
 def add_tag():
     if list_notes.selectedItems():
         key = list_notes.selectedItems()[0].text()
@@ -114,18 +112,17 @@ def add_tag():
         with open("note_data.json", "w") as file:
             json.dump(notes, file, sort_keys=True)
     else:
-        print("Замітка для додавання не обрана")
-
+        print("Замітка для видалення не обрана")
 
 def del_tag():
     if list_notes.selectedItems():
         key = list_notes.selectedItems()[0].text()
-        tag = field_tag.text()
+        tag = list_tags.selectedItems()[0].text()
         notes[key]["теги"].remove(tag)
         list_tags.clear()
         list_tags.addItems(notes[key]["теги"])
-        with open("notes_data.json","w") as file:
-            json.dump(notes, file, sort_key=True)
+        with open("notes_data.json", "w") as file:
+            json.dump(notes, file, sort_keys=True)
     else:
         print("Тег для видалення не обраний!")
 
@@ -144,20 +141,47 @@ def search_tag():
         field_tag.clear()
         list_notes.clear()
         list_tags.clear()
-        button_tag_search.setText("Шукати Замітки по тегу")
+        list_notes.addItems(notes)
+        button_tag_search.setText("Шукати замітки по тегу")
 
 
+with open("note_data.json", "w") as file:
+    json.dump(notes, file)
 
-
-with open("note_data.json","w") as file:
-    json.dump(notes,file)
-
-with open("note_data.json","r") as file:
+with open("note_data.json", "r") as file:
     notes = json.load(file)
 list_notes.addItems(notes)
 
 list_notes.itemClicked.connect(show_notes)
 
+window.setStyleSheet("""
+QWidget {
+    background-color: #ffe37a;
+}
+QPushButton {
+    background-color: #007bff;
+    color: yellow;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+}
+QPushButton:hover {
+    background-color: #0056b3;
+}
+QLabel {
+    font-size: 16px;
+    color: #333;
+}
+QListWidget {
+    background-color: 	#84cdee;
+    border: 10px solid 	#50b8e7;
+}
+QTextEdit {
+    background-color: #fbffa1;
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+""")
+
 window.show()
 app.exec_()
-
